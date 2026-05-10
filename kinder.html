@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Школа джунглей | 6 класс | Математика и Русский</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, 'Courier New', monospace;
+        }
+        body {
+            min-height: 100vh;
+            background: linear-gradient(145deg, #0a2f1f 0%, #0a1f12 100%);
+            padding: 20px;
+            position: relative;
+            color: #f3e9c0;
+        }
+        body::before {
+            content: "🌿🌴🍃🦜";
+            font-size: 160px;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            text-align: center;
+            opacity: 0.08;
+            pointer-events: none;
+            z-index: 0;
+            white-space: pre;
+            letter-spacing: 30px;
+        }
+        .app {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+        .adventure-panel {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(12px);
+            border-radius: 80px;
+            padding: 16px 28px;
+            margin-bottom: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            border: 1px solid #d4af37;
+            box-shadow: 0 15px 25px rgba(0,0,0,0.5);
+        }
+        .stats {
+            display: flex;
+            gap: 30px;
+            background: #1f2a1b;
+            padding: 5px 24px;
+            border-radius: 60px;
+        }
+        .stat-item { text-align: center; }
+        .stat-label { font-size: 0.7rem; letter-spacing: 1px; color: #ffdd99; }
+        .stat-value { font-size: 1.7rem; font-weight: 800; color: #ffb347; line-height: 1; }
+        .level-badge {
+            background: #6a4e2e;
+            border-radius: 60px;
+            padding: 5px 20px;
+            font-weight: bold;
+            border-left: 4px solid gold;
+        }
+        .progress-section { flex: 2; min-width: 180px; }
+        .progress-text { font-size: 0.7rem; margin-bottom: 5px; display: flex; justify-content: space-between; }
+        .progress-bar-bg { background: #2c392a; border-radius: 16px; height: 10px; overflow: hidden; }
+        .progress-fill { background: #f7b32b; width: 0%; height: 100%; border-radius: 16px; }
+        .badges { display: flex; gap: 12px; flex-wrap: wrap; }
+        .badge {
+            background: #3a2c1f;
+            border-radius: 40px;
+            padding: 5px 14px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            border-right: 2px solid #cfb284;
+        }
+        .badge.unlocked { background: #c99e3b; color: #1f2f0a; box-shadow: 0 0 8px gold; }
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 24px;
+        }
+        .left-col {
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+            border-radius: 64px;
+            padding: 20px;
+        }
+        .subject-selector {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        .subject-btn {
+            background: #2e4b2e;
+            border: none;
+            padding: 10px 28px;
+            border-radius: 40px;
+            color: #f9e2a1;
+            font-weight: bold;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 0 #1e2a0e;
+        }
+        .subject-btn.active {
+            background: #ffb347;
+            color: #1f2a0a;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #a45d1a;
+        }
+        .topics-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-height: 450px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+        .topic-item {
+            background: #fcf7e6;
+            border-radius: 40px;
+            padding: 15px 20px;
+            border-left: 10px solid #c98f2e;
+            color: #2c2b26;
+            cursor: pointer;
+            transition: 0.1s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .topic-item.locked {
+            opacity: 0.6;
+            background: #b9aa88;
+            cursor: not-allowed;
+        }
+        .topic-item.selected {
+            background: #ffefcf;
+            border-left-color: #f7b32b;
+            box-shadow: 0 0 0 2px #f7b32b;
+        }
+        .topic-title {
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: #2c2b26;
+        }
+        .topic-status {
+            font-size: 0.8rem;
+            color: #2c2b26;
+        }
+        .theory-panel {
+            background: #fff8ed;
+            border-radius: 48px;
+            padding: 24px;
+            margin-top: 20px;
+            color: #2c2b26;
+        }
+        .theory-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            color: #3a5a2a;
+        }
+        .theory-content {
+            line-height: 1.6;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            white-space: pre-line;
+            color: #2c2b26;
+        }
+        .ready-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .ready-btn {
+            background: #5e874b;
+            padding: 12px 30px;
+            font-size: 1rem;
+        }
+        .cancel-btn {
+            background: #8b5a2b;
+        }
+        .tasks-panel {
+            background: #fff8ed;
+            border-radius: 48px;
+            padding: 24px;
+            margin-top: 20px;
+        }
+        .task-item {
+            background: #fff4e0;
+            border-radius: 28px;
+            margin: 16px 0;
+            padding: 16px 20px;
+            color: #2c2b26;
+        }
+        .task-item strong {
+            color: #2c2b26;
+            font-weight: 800;
+        }
+        .flex-btns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 10px 0;
+            align-items: center;
+        }
+        input {
+            padding: 8px 16px;
+            border-radius: 40px;
+            border: 1px solid #bc9a5a;
+            flex: 1;
+            min-width: 140px;
+            background: white;
+            color: #1a1a1a;
+            font-weight: 500;
+        }
+        button {
+            background: #5e874b;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .hint-btn { background: #b97f2e; }
+        .retry-btn { background: #8b5a2b; }
+        .feedback { font-size: 0.75rem; margin-top: 4px; color: #2c2b26; }
+        .extra-questions {
+            background: #f5e6c4;
+            border-radius: 20px;
+            padding: 12px;
+            margin-top: 10px;
+            color: #2c2b26;
+        }
+        .right-col {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(12px);
+            border-radius: 56px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+        }
+        .leaderboard, .quest-card, .minigame {
+            background: #2a2c1e;
+            border-radius: 32px;
+            padding: 16px;
+        }
+        .leaderboard h3, .quest-card h3, .minigame h3 {
+            border-bottom: 2px solid gold;
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+        .simon-row {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .color-btn {
+            width: 55px;
+            height: 55px;
+            border-radius: 20px;
+            opacity: 0.7;
+            transition: 0.1s;
+            cursor: pointer;
+        }
+        .color-btn.active {
+            opacity: 1;
+            transform: scale(1.1);
+            box-shadow: 0 0 15px white;
+        }
+        .info-text {
+            text-align: center;
+            margin-top: 15px;
+            font-style: italic;
+        }
+        @media (max-width: 800px) {
+            .dashboard { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <div class="adventure-panel">
+        <div class="stats">
+            <div class="stat-item"><div class="stat-label">🏆 XP</div><div class="stat-value" id="xpValue">0</div></div>
+            <div class="stat-item"><div class="stat-label">⭐ Рейтинг</div><div class="stat-value" id="ratingValue">100</div></div>
+            <div class="level-badge" id="levelBadge">Уровень 1</div>
+        </div>
+        <div class="progress-section">
+            <div class="progress-text"><span>🌴 До следующего уровня</span><span id="nextLevelXp">100</span></div>
+            <div class="progress-bar-bg"><div class="progress-fill" id="xpProgressFill"></div></div>
+        </div>
+        <div class="badges">
+            <div class="badge" id="badge_level">⬆️ Новичок</div>
+            <div class="badge" id="badge_rating">🎖️ Честь</div>
+        </div>
+    </div>
+
+    <div class="dashboard">
+        <div class="left-col">
+            <div class="subject-selector">
+                <button class="subject-btn" data-subject="math">📐 Математика</button>
+                <button class="subject-btn" data-subject="russian">📖 Русский язык</button>
+            </div>
+            <div id="topicsList" class="topics-grid"></div>
+            <div id="theoryPanel" class="theory-panel" style="display: none;">
+                <div class="theory-title" id="theoryTitle"></div>
+                <div class="theory-content" id="theoryContent"></div>
+                <div class="ready-buttons">
+                    <button id="readyForTestBtn" class="ready-btn">✅ Готов к тесту</button>
+                    <button id="cancelTheoryBtn" class="ready-btn cancel-btn">📖 Продолжить читать</button>
+                </div>
+            </div>
+            <div id="tasksPanel" class="tasks-panel" style="display: none;">
+                <div id="tasksContainer"></div>
+            </div>
+        </div>
+        <div class="right-col">
+            <div class="leaderboard">
+                <h3>🏅 Таблица лидеров</h3>
+                <div id="rankList">1. Ты — 0 XP<br>2. Обезьянка Лулу — 90 XP<br>3. Тигр Шерхан — 60 XP</div>
+            </div>
+            <div class="quest-card">
+                <h3>📜 Квест дня</h3>
+                <p id="questDesc">Реши 3 задания без ошибок</p>
+                <p id="questProgress">Выполнено: 0/3</p>
+                <button id="claimQuestBtn" disabled>Забрать награду (+50 XP)</button>
+            </div>
+            <div class="minigame">
+                <h3>🎮 Мини-игра: Память джунглей</h3>
+                <p>Повтори последовательность цветов</p>
+                <div class="simon-row">
+                    <div class="color-btn" style="background:#e34d4d;" data-color="red"></div>
+                    <div class="color-btn" style="background:#4caf50;" data-color="green"></div>
+                    <div class="color-btn" style="background:#ffc107;" data-color="yellow"></div>
+                    <div class="color-btn" style="background:#3f51b5;" data-color="blue"></div>
+                </div>
+                <button id="startSimonBtn">🎮 Начать игру</button>
+                <p id="simonStatus">Готов? Нажми "Начать"</p>
+                <p>Победа = +30 XP</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --------------------------------------------------------------
+    // БАЗА ТЕМ С ПОДРОБНОЙ ТЕОРИЕЙ
+    // --------------------------------------------------------------
+    const subjectsDB = {
+        math: {
+            name: "Математика",
+            topics: [
+                { id: "math_fractions", title: "Обыкновенные дроби", needXP: 0, 
+                  theory: "🔢 Дробь — это часть целого. Она состоит из числителя (над чертой) и знаменателя (под чертой).\n\n📌 Чтобы сложить дроби с одинаковым знаменателем, нужно сложить их числители, а знаменатель оставить тем же.\nПример: 2/9 + 4/9 = 6/9.\n\n📌 Чтобы найти дробь от числа, нужно число разделить на знаменатель и умножить на числитель.\nПример: 3/5 от 25 = 25 ÷ 5 × 3 = 15.\n\n📌 Дроби можно сокращать, деля числитель и знаменатель на общее число." },
+                { id: "math_percents", title: "Проценты", needXP: 30,
+                  theory: "💡 Процент — это сотая доля числа. 1% = 1/100 = 0,01.\n\n📌 Чтобы найти процент от числа, нужно число умножить на количество процентов и разделить на 100.\nПример: 10% от 420 = 420 × 10 ÷ 100 = 42.\n\n📌 Чтобы найти скидку: цена × процент ÷ 100.\nПример: 30% от 2500 = 2500 × 30 ÷ 100 = 750 руб." },
+                { id: "math_equations", title: "Уравнения", needXP: 70,
+                  theory: "⚡ Уравнение — это равенство, содержащее неизвестное число (обычно x).\n\n📌 Чтобы решить уравнение, нужно перенести известные числа в одну сторону, а неизвестные — в другую.\nПример: x - 37 = 42 → x = 42 + 37 = 79.\n\n📌 Если неизвестное умножено на число: 5x = 125 → x = 125 ÷ 5 = 25." },
+                { id: "math_ratio", title: "Пропорции", needXP: 120,
+                  theory: "🔁 Пропорция — это равенство двух отношений: a/b = c/d.\n\n📌 Основное свойство пропорции: a × d = b × c.\nПример: 3/4 = x/16 → 3 × 16 = 4 × x → 48 = 4x → x = 12.\n\n📌 Отношение показывает, во сколько раз одно число больше другого." },
+                { id: "math_negative", title: "Отрицательные числа", needXP: 180,
+                  theory: "❄️ Отрицательные числа — это числа меньше нуля.\n\n📌 Сложение: (-5) + (-3) = -8 (два минуса складываются).\n📌 Умножение: минус на минус даёт плюс: (-4) × (-2) = 8.\n📌 Минус на плюс даёт минус: (-4) × 2 = -8." },
+                { id: "math_coords", title: "Координаты", needXP: 250,
+                  theory: "📈 Координатная плоскость задаётся двумя осями: X (горизонталь) и Y (вертикаль).\n\n📌 Точка записывается как (x; y).\nПример: A(3;4) — x=3, y=4.\n\n📌 Точка на оси X имеет y=0, на оси Y — x=0." },
+                { id: "math_areas", title: "Площади", needXP: 330,
+                  theory: "📐 Площадь — это место, которое занимает фигура.\n\n📌 Прямоугольник: S = a × b (длина × ширина).\nПример: 5 × 8 = 40.\n\n📌 Квадрат: S = a² (сторона в квадрате).\nПример: сторона 7 см → 7 × 7 = 49 см²." }
+            ]
+        },
+        russian: {
+            name: "Русский язык",
+            topics: [
+                { id: "rus_suffix", title: "Суффиксы -чик-/-щик-", needXP: 0,
+                  theory: "✍️ Суффикс -чик- пишется после букв Д, Т, З, С, Ж.\nПримеры: перебежчик, разведчик, грузчик.\n\n📌 В остальных случаях пишется -щик-.\nПримеры: каменщик, стекольщик, барабанщик.\n\nЗапоминалка: «ДоТеЗаСеЖ» → -чик-." },
+                { id: "rus_laglozh", title: "Корни -лаг-/-лож-", needXP: 30,
+                  theory: "📖 В корнях -лаг-/-лож- в безударном положении:\n— перед Г пишется А (лаг)\n— перед Ж пишется О (лож)\n\nПримеры: излагать — изложить, слагаемое — сложение, прилагательное — приложение." },
+                { id: "rus_numerals", title: "Склонение числительных", needXP: 70,
+                  theory: "🔢 У составных количественных числительных склоняется каждое слово.\n\nПример: число 684\n— И.п. шестьсот восемьдесят четыре\n— Р.п. шестисот восьмидесяти четырёх\n— Тв.п. шестьюстами восьмьюдесятью четырьмя\n\nЧислительные 40, 90, 100 имеют только две формы." },
+                { id: "rus_prefixed", title: "Приставки ПРЕ- и ПРИ-", needXP: 120,
+                  theory: "🎯 Приставка ПРИ- пишется, если есть значение:\n— приближения (приехать)\n— присоединения (приклеить)\n— близости (пришкольный)\n\n🎯 Приставка ПРЕ- пишется, если:\n— можно заменить на «очень» (прекрасный = очень красивый)\n— можно заменить на «пере-» (преградить = перегородить)" },
+                { id: "rus_roots", title: "Чередование -раст-/-ращ-/-рос-", needXP: 180,
+                  theory: "🌱 В корнях -раст-/-ращ-/-рос-:\n— перед СТ и Щ пишется А: растение, выращенный\n— перед С пишется О: вырос, заросли\n\nИсключения: росток, Ростов, Ростислав, отрасль." },
+                { id: "rus_particles", title: "Частицы НЕ и НИ", needXP: 250,
+                  theory: "❌ Частица НЕ — отрицание: не пришёл, не знал.\n\n❌ Частица НИ — усиливает отрицание: ни шагу, никого не было.\n\n📌 В устойчивых оборотах: ни свет ни заря, ни рыба ни мясо.\n📌 В придаточных предложениях НИ усиливает утверждение: куда ни посмотрю — везде лес." },
+                { id: "rus_dialects", title: "Диалектизмы", needXP: 330,
+                  theory: "🗣️ Диалектизмы — это слова, которые употребляются только в определённой местности.\n\nПримеры:\n— кочет (петух) — южные и западные области\n— буряк (свёкла) — украинские и южнорусские говоры\n— векша (белка) — северные регионы\n— понёва (юбка) — южнорусский народный костюм" }
+            ]
+        }
+    };
+
+    // ЗАДАНИЯ
+    const tasksLib = {
+        math_fractions: [{ q: "2/9 + 4/9 = ? (дробь)", a: "6/9", pts: 15, hint: "Сложи числители 2+4=6" },{ q: "3/5 от 25 = ?", a: "15", pts: 15, hint: "25÷5×3" }],
+        math_percents: [{ q: "10% от 420 = ?", a: "42", pts: 15, hint: "420÷10" },{ q: "30% от 2500 = ?", a: "750", pts: 15, hint: "2500×0.3" }],
+        math_equations: [{ q: "x - 37 = 42", a: "79", pts: 15, hint: "42+37" },{ q: "5x = 125", a: "25", pts: 15, hint: "125÷5" }],
+        math_ratio: [{ q: "3/4 = x/16, x=?", a: "12", pts: 15, hint: "3×16÷4" },{ q: "6:2 = 9:?", a: "3", pts: 15, hint: "6÷2=3" }],
+        math_negative: [{ q: "-5 + (-3) = ?", a: "-8", pts: 15, hint: "Два минуса = -8" },{ q: "(-4) × (-2) = ?", a: "8", pts: 15, hint: "Минус на минус = плюс" }],
+        math_coords: [{ q: "Точка A(3;4), y = ?", a: "4", pts: 15, hint: "Вторая координата" },{ q: "Точка (5;0) на оси X. x=?", a: "5", pts: 15, hint: "Первая координата" }],
+        math_areas: [{ q: "Площадь 5×8 = ?", a: "40", pts: 15, hint: "5×8" },{ q: "Квадрат 7см, площадь = ?", a: "49", pts: 15, hint: "7×7" }],
+        rus_suffix: [{ q: "Свар... (суффикс)", a: "щик", pts: 15, hint: "После Р нет Д,Т,З,С,Ж" },{ q: "Развед...", a: "чик", pts: 15, hint: "Перед ЧИК буква Д" }],
+        rus_laglozh: [{ q: "предл...жить (буква)", a: "о", pts: 15, hint: "Перед Ж → О" },{ q: "сл...гаемое", a: "а", pts: 15, hint: "Перед Г → А" }],
+        rus_numerals: [{ q: "Р.п. 684 словами", a: "шестисот восьмидесяти четырёх", pts: 20, hint: "Склоняем каждое слово" },{ q: "Тв.п. 93", a: "девяноста тремя", pts: 20, hint: "93 → девяносто три" }],
+        rus_prefixed: [{ q: "пр...бывать (в город)", a: "и", pts: 15, hint: "Приближение = ПРИ" },{ q: "пр...красный", a: "е", pts: 15, hint: "Очень = ПРЕ" }],
+        rus_roots: [{ q: "выр...с (буква)", a: "о", pts: 15, hint: "Перед С → О" },{ q: "р...стение", a: "а", pts: 15, hint: "Перед СТ → А" }],
+        rus_particles: [{ q: "н...кого не было", a: "и", pts: 15, hint: "Усиление = НИ" },{ q: "он н... пришёл", a: "е", pts: 15, hint: "Отрицание = НЕ" }],
+        rus_dialects: [{ q: "Кочет — это?", a: "петух", pts: 15, hint: "Поёт по утрам" },{ q: "Буряк — это?", a: "свёкла", pts: 15, hint: "Бордовый овощ" }]
+    };
+
+    // СОСТОЯНИЕ
+    let currentSubject = "math";
+    let totalXP = 0;
+    let rating = 100;
+    let level = 1;
+    let unlockedTopics = { math: ["math_fractions"], russian: ["rus_suffix"] };
+    let completedTopics = { math: [], russian: [] };
+    let tasksState = {};
+    let questState = { needed: 3, current: 0, claimed: false };
+    
+    let selectedTopic = null;
+    let testMode = false;
+    
+    // XP система
+    function updateLevelAndUI() {
+        let newLevel = Math.floor(totalXP / 100) + 1;
+        if (newLevel > level) {
+            level = newLevel;
+            document.getElementById("badge_level").innerHTML = "⚡ Мастер джунглей";
+            document.getElementById("badge_level").classList.add("unlocked");
+        }
+        level = newLevel;
+        document.getElementById("levelBadge").innerHTML = `🌴 Уровень ${level}`;
+        let nextXP = level * 100;
+        let currentInLevel = totalXP - (level-1)*100;
+        let percent = Math.min(100, (currentInLevel / 100) * 100);
+        document.getElementById("xpProgressFill").style.width = percent + "%";
+        document.getElementById("nextLevelXp").innerHTML = `${nextXP - totalXP} XP`;
+        document.getElementById("xpValue").innerHTML = totalXP;
+        document.getElementById("rankList").innerHTML = `1. Ты (${totalXP} XP)<br>2. Обезьянка Лулу (${totalXP+30} XP)<br>3. Тигр Шерхан (${Math.max(0,totalXP-10)} XP)`;
+    }
+    
+    function addXP(amount) {
+        totalXP += amount;
+        updateLevelAndUI();
+        unlockTopicsByXP();
+        renderTopicsList();
+        saveGame();
+    }
+    
+    function addRating(delta) {
+        rating = Math.min(200, Math.max(0, rating + delta));
+        document.getElementById("ratingValue").innerHTML = rating;
+        if (rating >= 150) {
+            document.getElementById("badge_rating").innerHTML = "🏅 Почётный рейтинг";
+            document.getElementById("badge_rating").classList.add("unlocked");
+        }
+        saveGame();
+    }
+    
+    function unlockTopicsByXP() {
+        for (let topic of subjectsDB[currentSubject].topics) {
+            if (!unlockedTopics[currentSubject].includes(topic.id) && totalXP >= topic.needXP) {
+                unlockedTopics[currentSubject].push(topic.id);
+            }
+        }
+    }
+    
+    // Обработка заданий
+    function handleMainTask(topicId, taskIdx, userAnswer) {
+        let key = `${currentSubject}_${topicId}_${taskIdx}`;
+        if (tasksState[key] && tasksState[key].completed) {
+            alert("Задание уже выполнено!");
+            return;
+        }
+        if (!tasksState[key]) {
+            tasksState[key] = { completed: false, extraQuestions: null, extraSolved: [] };
+        }
+        
+        let task = tasksLib[topicId][taskIdx];
+        let isCorrect = (userAnswer.trim().toLowerCase() === task.a.toLowerCase());
+        let feedbackDiv = document.querySelector(`.task-item[data-taskidx="${taskIdx}"] .feedback`);
+        
+        if (isCorrect) {
+            if (!tasksState[key].completed) {
+                tasksState[key].completed = true;
+                addXP(task.pts);
+                addRating(5);
+                if (!questState.claimed) {
+                    questState.current++;
+                    document.getElementById("questProgress").innerHTML = `Выполнено: ${questState.current}/${questState.needed}`;
+                    if (questState.current >= questState.needed) {
+                        document.getElementById("claimQuestBtn").disabled = false;
+                    }
+                }
+                if (feedbackDiv) feedbackDiv.innerHTML = "✅ Верно! +" + task.pts + " XP, +5⭐";
+                renderTasksPanel(topicId);
+                let allCompleted = true;
+                for (let i = 0; i < tasksLib[topicId].length; i++) {
+                    let k = `${currentSubject}_${topicId}_${i}`;
+                    if (!tasksState[k]?.completed) allCompleted = false;
+                }
+                if (allCompleted && !completedTopics[currentSubject].includes(topicId)) {
+                    completedTopics[currentSubject].push(topicId);
+                    renderTopicsList();
+                }
+            }
+        } else {
+            addRating(-5);
+            if (feedbackDiv) feedbackDiv.innerHTML = "❌ Неверно! -5⭐";
+            if (!tasksState[key].extraQuestions) {
+                tasksState[key].extraQuestions = [
+                    { q: `Попробуй ещё: ${task.q.split('?')[0]}?`, a: task.a, pts: 8, hint: task.hint || "Подумай" },
+                    { q: `Вопрос-помощь: ${task.q}`, a: task.a, pts: 8, hint: "Ответ тот же" }
+                ];
+                tasksState[key].extraSolved = [false, false];
+            }
+            renderTasksPanel(topicId);
+        }
+        saveGame();
+    }
+    
+    function handleExtraTask(topicId, taskIdx, extraIdx, userAnswer) {
+        let key = `${currentSubject}_${topicId}_${taskIdx}`;
+        if (!tasksState[key] || tasksState[key].completed) return;
+        let extra = tasksState[key].extraQuestions[extraIdx];
+        if (!extra) return;
+        
+        if (userAnswer.trim().toLowerCase() === extra.a.toLowerCase()) {
+            if (!tasksState[key].extraSolved[extraIdx]) {
+                tasksState[key].extraSolved[extraIdx] = true;
+                addXP(extra.pts);
+                addRating(2);
+                alert(`✅ Доп. вопрос решён! +${extra.pts} XP, +2⭐`);
+            }
+            let allSolved = tasksState[key].extraSolved.every(v => v === true);
+            if (allSolved && !tasksState[key].completed) {
+                tasksState[key].completed = true;
+                addXP(5);
+                if (!questState.claimed) {
+                    questState.current++;
+                    document.getElementById("questProgress").innerHTML = `Выполнено: ${questState.current}/${questState.needed}`;
+                    if (questState.current >= questState.needed) document.getElementById("claimQuestBtn").disabled = false;
+                }
+                renderTasksPanel(topicId);
+            }
+        } else {
+            addRating(-3);
+            alert(`❌ Неверно! -3⭐`);
+        }
+        saveGame();
+    }
+    
+    function useHint(topicId, taskIdx) {
+        if (rating >= 3) {
+            addRating(-3);
+            let hintText = tasksLib[topicId][taskIdx].hint || "Посмотри теорию!";
+            alert(`💡 Подсказка: ${hintText}`);
+        } else {
+            alert("Недостаточно рейтинга (нужно 3⭐)");
+        }
+    }
+    
+    // Отрисовка списка тем
+    function renderTopicsList() {
+        let subject = subjectsDB[currentSubject];
+        let container = document.getElementById("topicsList");
+        let html = "";
+        for (let topic of subject.topics) {
+            let isUnlocked = unlockedTopics[currentSubject].includes(topic.id);
+            let isCompleted = completedTopics[currentSubject].includes(topic.id);
+            let lockedClass = isUnlocked ? "" : "locked";
+            let selectedClass = (selectedTopic === topic.id) ? "selected" : "";
+            html += `<div class="topic-item ${lockedClass} ${selectedClass}" data-topic-id="${topic.id}">
+                        <span class="topic-title">${topic.title}</span>
+                        <span class="topic-status">${isCompleted ? "✅ Пройдена" : (isUnlocked ? "🔓 Доступна" : `🔒 ${topic.needXP} XP`)}</span>
+                    </div>`;
+        }
+        container.innerHTML = html;
+        
+        document.querySelectorAll(".topic-item").forEach(el => {
+            el.addEventListener("click", () => {
+                let topicId = el.dataset.topicId;
+                let isUnlocked = unlockedTopics[currentSubject].includes(topicId);
+                if (!isUnlocked) {
+                    alert(`Тема заблокирована! Нужно ${subjectsDB[currentSubject].topics.find(t => t.id === topicId).needXP} XP.`);
+                    return;
+                }
+                selectTopic(topicId);
+            });
+        });
+    }
+    
+    function selectTopic(topicId) {
+        selectedTopic = topicId;
+        testMode = false;
+        let topic = subjectsDB[currentSubject].topics.find(t => t.id === topicId);
+        document.getElementById("theoryTitle").innerHTML = topic.title;
+        document.getElementById("theoryContent").innerHTML = topic.theory;
+        document.getElementById("theoryPanel").style.display = "block";
+        document.getElementById("tasksPanel").style.display = "none";
+        renderTopicsList();
+    }
+    
+    function startTest() {
+        if (!selectedTopic) return;
+        testMode = true;
+        document.getElementById("theoryPanel").style.display = "none";
+        document.getElementById("tasksPanel").style.display = "block";
+        renderTasksPanel(selectedTopic);
+    }
+    
+    function renderTasksPanel(topicId) {
+        let container = document.getElementById("tasksContainer");
+        let tasks = tasksLib[topicId];
+        if (!tasks) {
+            container.innerHTML = "<div>Задания появятся позже</div>";
+            return;
+        }
+        let topic = subjectsDB[currentSubject].topics.find(t => t.id === topicId);
+        let html = `<div style="font-size:1.2rem; font-weight:bold; margin-bottom:15px; color:#2c2b26;">📝 Тест: ${topic.title}</div>`;
+        for (let i = 0; i < tasks.length; i++) {
+            let key = `${currentSubject}_${topicId}_${i}`;
+            let state = tasksState[key] || { completed: false, extraQuestions: null, extraSolved: [] };
+            let isDone = state.completed;
+            html += `<div class="task-item" data-taskidx="${i}">
+                        <strong>${i+1}. ${tasks[i].q}</strong>
+                        <div class="flex-btns">
+                            <input type="text" class="task-input" placeholder="Введите ответ" ${isDone ? "disabled" : ""}>
+                            <button class="check-btn" ${isDone ? "disabled" : ""}>Проверить</button>
+                            <button class="hint-btn" ${isDone ? "disabled" : ""}>💡 Подсказка (-3⭐)</button>
+                        </div>
+                        <div class="feedback"></div>`;
+            if (state.extraQuestions && !state.completed) {
+                html += `<div class="extra-questions"><strong>⚠️ Дополнительные вопросы (ответь на оба):</strong>`;
+                for (let e = 0; e < state.extraQuestions.length; e++) {
+                    let solved = state.extraSolved[e];
+                    html += `<div style="margin-top:8px;" data-extraidx="${e}">
+                                ${state.extraQuestions[e].q}
+                                <div class="flex-btns">
+                                    <input type="text" class="extra-input" placeholder="Ответ" ${solved ? "disabled" : ""}>
+                                    <button class="extra-check" ${solved ? "disabled" : ""}>${solved ? "✓ Решён" : "Ответить"}</button>
+                                </div>
+                            </div>`;
+                }
+                html += `</div>`;
+            }
+            html += `</div>`;
+        }
+        container.innerHTML = html;
+        
+        container.querySelectorAll(".check-btn").forEach((btn, idx) => {
+            let taskDiv = btn.closest(".task-item");
+            let taskIdx = parseInt(taskDiv.dataset.taskidx);
+            btn.addEventListener("click", () => {
+                let input = taskDiv.querySelector(".task-input");
+                if (input) handleMainTask(topicId, taskIdx, input.value);
+            });
+        });
+        container.querySelectorAll(".hint-btn").forEach((btn, idx) => {
+            let taskDiv = btn.closest(".task-item");
+            let taskIdx = parseInt(taskDiv.dataset.taskidx);
+            btn.addEventListener("click", () => useHint(topicId, taskIdx));
+        });
+        container.querySelectorAll(".extra-check").forEach(btn => {
+            let extraDiv = btn.closest("div[data-extraidx]");
+            let extraIdx = parseInt(extraDiv.dataset.extraidx);
+            let taskDiv = btn.closest(".task-item");
+            let taskIdx = parseInt(taskDiv.dataset.taskidx);
+            btn.addEventListener("click", () => {
+                let input = extraDiv.querySelector(".extra-input");
+                if (input) handleExtraTask(topicId, taskIdx, extraIdx, input.value);
+            });
+        });
+    }
+    
+    // Квест и мини-игра
+    function claimQuest() {
+        if (questState.current >= questState.needed && !questState.claimed) {
+            addXP(50);
+            questState.claimed = true;
+            document.getElementById("claimQuestBtn").disabled = true;
+            document.getElementById("questDesc").innerHTML = "Квест выполнен! 🎉";
+            saveGame();
+        }
+    }
+    
+    let simonSequence = [], simonPlayerIndex = 0, simonPlaying = false, simonInterval = null;
+    function startSimon() {
+        simonSequence = [];
+        let colors = ["red", "green", "yellow", "blue"];
+        for (let i = 0; i < 4; i++) simonSequence.push(colors[Math.floor(Math.random() * 4)]);
+        simonPlayerIndex = 0;
+        simonPlaying = true;
+        document.getElementById("simonStatus").innerHTML = "🎵 Смотри и запоминай!";
+        if (simonInterval) clearInterval(simonInterval);
+        let i = 0;
+        simonInterval = setInterval(() => {
+            if (i >= simonSequence.length) {
+                clearInterval(simonInterval);
+                document.getElementById("simonStatus").innerHTML = "👆 Теперь твоя очередь!";
+                return;
+            }
+            let btn = document.querySelector(`.color-btn[data-color="${simonSequence[i]}"]`);
+            if (btn) {
+                btn.classList.add("active");
+                setTimeout(() => btn.classList.remove("active"), 400);
+            }
+            i++;
+        }, 700);
+    }
+    function simonClick(color) {
+        if (!simonPlaying) return;
+        if (color === simonSequence[simonPlayerIndex]) {
+            simonPlayerIndex++;
+            if (simonPlayerIndex === simonSequence.length) {
+                simonPlaying = false;
+                document.getElementById("simonStatus").innerHTML = "🎉 Победа! +30 XP!";
+                addXP(30);
+                if (simonInterval) clearInterval(simonInterval);
+            }
+        } else {
+            simonPlaying = false;
+            document.getElementById("simonStatus").innerHTML = "❌ Ошибка! Начни заново.";
+            if (simonInterval) clearInterval(simonInterval);
+        }
+    }
+    
+    function setSubject(subject) {
+        currentSubject = subject;
+        selectedTopic = null;
+        testMode = false;
+        document.getElementById("theoryPanel").style.display = "none";
+        document.getElementById("tasksPanel").style.display = "none";
+        document.querySelectorAll(".subject-btn").forEach(btn => {
+            if (btn.dataset.subject === subject) btn.classList.add("active");
+            else btn.classList.remove("active");
+        });
+        unlockTopicsByXP();
+        renderTopicsList();
+        saveGame();
+    }
+    
+    function saveGame() {
+        localStorage.setItem("jungleSchoolNew", JSON.stringify({
+            totalXP, rating, unlockedTopics, completedTopics, tasksState, questState, currentSubject
+        }));
+    }
+    
+    function loadGame() {
+        let d = localStorage.getItem("jungleSchoolNew");
+        if (d) {
+            try {
+                let data = JSON.parse(d);
+                totalXP = data.totalXP || 0;
+                rating = data.rating || 100;
+                unlockedTopics = data.unlockedTopics || { math: ["math_fractions"], russian: ["rus_suffix"] };
+                completedTopics = data.completedTopics || { math: [], russian: [] };
+                tasksState = data.tasksState || {};
+                questState = data.questState || { needed: 3, current: 0, claimed: false };
+                currentSubject = data.currentSubject || "math";
+            } catch(e) {}
+        }
+        if (!unlockedTopics.math.includes("math_fractions")) unlockedTopics.math.push("math_fractions");
+        if (!unlockedTopics.russian.includes("rus_suffix")) unlockedTopics.russian.push("rus_suffix");
+        updateLevelAndUI();
+        setSubject(currentSubject);
+    }
+    
+    // Инициализация
+    document.querySelectorAll(".subject-btn").forEach(btn => {
+        btn.addEventListener("click", () => setSubject(btn.dataset.subject));
+    });
+    document.getElementById("readyForTestBtn").addEventListener("click", startTest);
+    document.getElementById("cancelTheoryBtn").addEventListener("click", () => {
+        document.getElementById("theoryPanel").style.display = "none";
+    });
+    document.getElementById("claimQuestBtn").addEventListener("click", claimQuest);
+    document.getElementById("startSimonBtn").addEventListener("click", startSimon);
+    document.querySelectorAll(".color-btn").forEach(btn => {
+        btn.addEventListener("click", () => simonClick(btn.dataset.color));
+    });
+    
+    loadGame();
+</script>
+</body>
+</html>
